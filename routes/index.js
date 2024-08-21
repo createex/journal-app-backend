@@ -1,0 +1,16 @@
+module.exports = {
+  authUserRoute: require("./authUserRoute"),
+  authAdminRoute: require("./authAdminRoute"),
+  userRoute: require("./userRoute"),
+  adminRoute: require("./adminRoute"),
+  goalsRoute: require("./goalsRoute"),
+  motivationsRoute: require("./motivationsRoute"),
+  activitiesRoute: require("./activitiesRoute"),
+  feelingsRoute: require("./feelingsRoute"),
+  moodsRoute: require("./moodsRoute"),
+  postRoute: require("./postRoute"),
+  noteRoute: require("./noteRoute"),
+  elevatesRoute: require("./elevatesRoute"),
+  headingsRoute: require("./headingsRoute"),
+  statRoute: require("./statRoute"),
+};

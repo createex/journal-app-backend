@@ -1,0 +1,16 @@
+module.exports = {
+  authUserCont: require("./authUserCont"),
+  authAdminCont: require("./authAdminCont"),
+  userCont: require("./userCont"),
+  adminCont: require("./adminCont"),
+  goalsCont: require("./goalsCont"),
+  motivationsCont: require("./motivationsCont"),
+  activitiesCont: require("./activitiesCont"),
+  feelingsCont: require("./feelingsCont"),
+  moodsCont: require("./moodsCont"),
+  postCont: require("./postCont"),
+  noteCont: require("./noteCont"),
+  elevatesCont: require("./elevatesCont"),
+  headingsCont: require("./headingsCont"),
+  statCont: require("./statCont"),
+};
