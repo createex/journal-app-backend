@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+require("dotenv").config();
 const {
   authUserRoute,
   authAdminRoute,
@@ -18,7 +19,6 @@ const {
   statRoute,
 } = require("./routes");
 
-dotenv.config();
 
 require("./configs/mongoConfig");
 
