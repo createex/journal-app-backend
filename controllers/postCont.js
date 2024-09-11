@@ -41,10 +41,13 @@ cron.schedule('0 0 * * *', async () => {
   const users = await postCluster.distinct('userId'); // Get unique user IDs
 
   for (const userId of users) {
+    // Get today's date and set the start and end of the day
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+    const endOfDay = new Date(startOfDay);
+    endOfDay.setDate(endOfDay.getDate() + 1); // End of day is the start of the next day
 
+    // Find if there's already a post for today
     const existingPost = await postCluster.findOne({
       userId: userId,
       createdAt: {
@@ -53,6 +56,7 @@ cron.schedule('0 0 * * *', async () => {
       }
     });
 
+    // If no post exists, create a new one
     if (!existingPost) {
       await createPost({
         userId: userId,

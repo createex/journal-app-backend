@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const { statCont } = require("../controllers");
 
-router.get("/getById/:id", statCont.getById).get("/getAll/", statCont.getAll);
+router.get("/getById/:id", statCont.getById);
+router.get("/getAll/", statCont.getAll);
+router.get('/graphstats',statCont.graphstats)
 
 module.exports = router;

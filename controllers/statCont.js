@@ -127,7 +127,64 @@ const getAll = async (req, res) => {
   }
 };
 
+// Route to get goals for the current day and the previous six days
+const graphstats = async (req, res) => {
+  try {
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - 6);
+    startOfWeek.setHours(0, 0, 0, 0); // Start of the day
+    const endOfWeek = new Date(today);
+    endOfWeek.setDate(today.getDate() + 1);
+    endOfWeek.setHours(0, 0, 0, 0); // Start of the next day for inclusive end
+
+    const posts = await postCluster.aggregate([
+      {
+        $match: {
+          goalAchieve: true,
+          createdAt: {
+            $gte: startOfWeek,
+            $lt: endOfWeek
+          }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" }
+          },
+          goals: { $sum: 1 }
+        }
+      },
+      {
+        $sort: { _id: 1 } // Sort by date ascending
+      },
+      {
+        $project: {
+          date: { $dateFromString: { dateString: "$_id" } },
+          goals: 1,
+          _id: 0
+        }
+      }
+    ]);
+
+    // Format response to include DateTime format for date
+    const formattedPosts = posts.map(post => ({
+      goals: post.goals,
+      date: new Date(post.date).toISOString() // Convert Date object to ISO string
+    }));
+
+    return res.status(200).json(formattedPosts);
+  } catch (error) {
+    console.error('Error retrieving goals for the last 7 days:', error);
+    return res.status(500).json({ message: 'Error retrieving goals', error: error.message });
+  }
+};
+
+
+
 module.exports = {
   getById,
   getAll,
+  graphstats
 };
