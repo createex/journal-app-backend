@@ -50,8 +50,9 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    let body = await userloginSchema.validate(req.body);
 
+    let body = await userloginSchema.validate(req.body);
+    console.log(body)
     let adminData = await adminCluster.findOne({ email: body.email });
     if (adminData == null) {
       return res.send({
@@ -68,6 +69,12 @@ const login = async (req, res) => {
         result: false,
         data: {},
       });
+    }
+
+    // Update FCM Token if provided
+    if (body.fcmToken) {
+      adminData.fcmToken = body.fcmToken;
+      await adminData.save();
     }
 
     return res.send({

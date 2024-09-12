@@ -50,8 +50,10 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
+    // Validate the request body
     let user = await userloginSchema.validate(req.body);
 
+    // Find the user by email
     let userData = await userCluster.findOne({ email: user.email });
     if (userData == null) {
       return res.send({
@@ -61,6 +63,7 @@ const login = async (req, res) => {
       });
     }
 
+    // Check the password
     let checkPass = await userData.comparePassword(user.password);
     if (!checkPass) {
       return res.send({
@@ -69,7 +72,8 @@ const login = async (req, res) => {
         data: {},
       });
     }
-
+    
+    // Check if the email is verified
     if (userData.verified == false) {
       return res.send({
         message: "Email is not verified",
@@ -78,8 +82,14 @@ const login = async (req, res) => {
       });
     }
 
+    // Update FCM Token if provided
+    if (body.fcmToken) {
+      userData.fcmToken = body.fcmToken;
+      await userData.save();
+    }
+
     return res.send({
-      message: "Successfully Login",
+      message: "Successfully Logged In",
       result: true,
       data: userData,
     });

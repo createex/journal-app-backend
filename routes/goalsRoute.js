@@ -4,7 +4,7 @@ const { goalsCont } = require("../controllers");
 const { uploadDoc } = require("../utils/multerDoc");
 
 router
-  .post("/create/", uploadDoc.single("image"), goalsCont.create)
+  .post("/create/:id", uploadDoc.single("image"), goalsCont.create)
   .get("/getById/:id", goalsCont.getById)
   .get("/getAll", goalsCont.getAll)
   .delete("/deleteById/:id", goalsCont.deleteById)

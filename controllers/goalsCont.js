@@ -6,6 +6,7 @@ const create = async (req, res) => {
   try {
     let body = await titleSchema.validate(req.body);
     let image = req.file;
+    let userId = req.params.id; // Assuming userId is available from authentication middleware
 
     if (image == null) {
       return res.send({
@@ -28,11 +29,12 @@ const create = async (req, res) => {
     let json = {
       title: body.title,
       image: path,
+      createdBy: userId, // Add user reference here
     };
 
     let data = await goalsCluster.create(json);
     return res.send({
-      message: "Successfully Create",
+      message: "Successfully Created",
       result: true,
       data: data,
     });
@@ -44,6 +46,7 @@ const create = async (req, res) => {
     });
   }
 };
+
 
 const getAll = async (req, res) => {
   try {

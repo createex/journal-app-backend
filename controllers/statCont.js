@@ -1,4 +1,5 @@
-const { userCluster, postCluster, noteCluster } = require("../models");
+const { userCluster, postCluster, noteCluster,goalsCluster } = require("../models");
+const mongoose = require("mongoose");
 
 const setStreak = (posts) => {
   let streak = 1;
@@ -127,21 +128,27 @@ const getAll = async (req, res) => {
   }
 };
 
-// Route to get goals for the current day and the previous six days
 const graphstats = async (req, res) => {
   try {
+    const userId = req.params.id;
+
+    if (!userId) {
+      return res.status(400).json({ message: 'User ID is required' });
+    }
+
     const today = new Date();
     const startOfWeek = new Date(today);
     startOfWeek.setDate(today.getDate() - 6);
-    startOfWeek.setHours(0, 0, 0, 0); // Start of the day
+    startOfWeek.setHours(0, 0, 0, 0);
+
     const endOfWeek = new Date(today);
     endOfWeek.setDate(today.getDate() + 1);
-    endOfWeek.setHours(0, 0, 0, 0); // Start of the next day for inclusive end
+    endOfWeek.setHours(0, 0, 0, 0);
 
-    const posts = await postCluster.aggregate([
+    const goals = await goalsCluster.aggregate([
       {
         $match: {
-          goalAchieve: true,
+          createdBy: new mongoose.Types.ObjectId(userId), // Use new to construct ObjectId
           createdAt: {
             $gte: startOfWeek,
             $lt: endOfWeek
@@ -157,7 +164,7 @@ const graphstats = async (req, res) => {
         }
       },
       {
-        $sort: { _id: 1 } // Sort by date ascending
+        $sort: { _id: 1 }
       },
       {
         $project: {
@@ -168,19 +175,17 @@ const graphstats = async (req, res) => {
       }
     ]);
 
-    // Format response to include DateTime format for date
-    const formattedPosts = posts.map(post => ({
-      goals: post.goals,
-      date: new Date(post.date).toISOString() // Convert Date object to ISO string
+    const formattedGoals = goals.map(goal => ({
+      goals: goal.goals,
+      date: new Date(goal.date).toISOString()
     }));
 
-    return res.status(200).json(formattedPosts);
+    return res.status(200).json(formattedGoals);
   } catch (error) {
     console.error('Error retrieving goals for the last 7 days:', error);
     return res.status(500).json({ message: 'Error retrieving goals', error: error.message });
   }
 };
-
 
 
 module.exports = {

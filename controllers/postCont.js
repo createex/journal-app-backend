@@ -21,12 +21,11 @@ const create = async (req, res) => {
 };
 
 
-// Function to create an empty post 
+// Function to create an empty post
 const createPost = async (postData) => {
   try {
     let data = await postCluster.create(postData);
     console.log('Successfully created post:', data);
-    updateUserPostsForLastWeek();
     return data;
   } catch (error) {
     console.error('Error creating post:', error.message);
@@ -34,45 +33,55 @@ const createPost = async (postData) => {
   }
 };
 
-// Schedule a cron job to run every midnight
-cron.schedule('0 0 * * *', async () => {
-  console.log('Running cron job to create daily posts...');
+// Function to process users and create posts
+const processUsers = async () => {
+  try {
+    console.log('Running cron job to check and create daily posts...');
 
-  const users = await postCluster.distinct('userId'); // Get unique user IDs
+    // Get unique user IDs
+    const userIds = await postCluster.distinct('userId'); 
 
-  for (const userId of users) {
-    // Get today's date and set the start and end of the day
-    const today = new Date();
-    const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const endOfDay = new Date(startOfDay);
-    endOfDay.setDate(endOfDay.getDate() + 1); // End of day is the start of the next day
+    for (const userId of userIds) {
+      // Get today's date and set the start and end of the day
+      const today = new Date();
+      const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+      const endOfDay = new Date(startOfDay);
+      endOfDay.setDate(endOfDay.getDate() + 1); // End of day is the start of the next day
 
-    // Find if there's already a post for today
-    const existingPost = await postCluster.findOne({
-      userId: userId,
-      createdAt: {
-        $gte: startOfDay,
-        $lt: endOfDay
-      }
-    });
-
-    // If no post exists, create a new one
-    if (!existingPost) {
-      await createPost({
+      // Find if there's already a post for today
+      const existingPost = await postCluster.findOne({
         userId: userId,
-        mood: null,
-        activities: [],
-        feelings: [],
-        goalAchieve: false,
-        note: null,
-        dayDescription: "NA",
-        tomorrowDescription: "NA"
+        createdAt: {
+          $gte: startOfDay,
+          $lt: endOfDay
+        }
       });
-      console.log(`Created empty post for user ${userId}`);
-    } else {
-      console.log(`Post already exists for user ${userId} today.`);
+
+      // If no post exists, create a new one
+      if (!existingPost) {
+        await createPost({
+          userId: userId,
+          mood: null,
+          activities: [],
+          feelings: [],
+          goalAchieve: false,
+          note: null,
+          dayDescription: "NA",
+          tomorrowDescription: "NA"
+        });
+        console.log(`Created empty post for user ${userId}`);
+      } else {
+        console.log(`Post already exists for user ${userId} today.`);
+      }
     }
+  } catch (error) {
+    console.error('Error in processing users:', error);
   }
+};
+
+// Schedule a cron job to run at 11:55 PM every day
+cron.schedule('55 23 * * *', () => {
+  processUsers();
 });
 
 
