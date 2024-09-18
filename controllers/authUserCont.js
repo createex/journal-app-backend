@@ -82,11 +82,11 @@ const login = async (req, res) => {
       });
     }
 
-    // Update FCM Token if provided
-    if (body.fcmToken) {
-      userData.fcmToken = body.fcmToken;
-      await userData.save();
-    }
+   // Update FCM Token if provided
+   if (req.body.fcmToken) { // Changed from `body.fcmToken` to `req.body.fcmToken`
+    userData.fcmToken = req.body.fcmToken;
+    await userData.save();
+  }
 
     return res.send({
       message: "Successfully Logged In",
